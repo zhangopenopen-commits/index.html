@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>多元包容 ・ 參與</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #fff; color: #111; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1.25rem; }
+  .badge { font-size: 12px; color: #aaa; border: 1px solid #e8e8e8; border-radius: 99px; padding: 4px 14px; margin-bottom: 1.5rem; }
+  h1 { font-size: 21px; font-weight: 500; text-align: center; line-height: 1.4; margin-bottom: 0.5rem; }
+  p.sub { font-size: 14px; color: #999; text-align: center; line-height: 1.6; margin-bottom: 1.75rem; }
+  .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 400px; }
+  .screen.active { display: flex; }
+  .qcard { background: #f7f7f7; border-radius: 14px; padding: 1.5rem; width: 100%; text-align: center; margin-bottom: 1.25rem; }
+  .qnum { font-size: 12px; color: #bbb; margin-bottom: 0.5rem; }
+  .qtext { font-size: 18px; font-weight: 500; line-height: 1.5; }
+  .choices { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 1.25rem; }
+  .choice { padding: 1.25rem 1rem; border-radius: 12px; border: 1px solid #e8e8e8; background: #fff; cursor: pointer; font-size: 15px; font-weight: 500; text-align: center; line-height: 1.5; white-space: pre-line; transition: all 0.15s; }
+  .choice:hover { background: #f5f5f5; }
+  .choice.sA { background: #E6F1FB; border-color: #378ADD; color: #042C53; }
+  .choice.sB { background: #FAEEDA; border-color: #BA7517; color: #412402; }
+  .choice.dim { opacity: 0.35; cursor: default; pointer-events: none; }
+  .ok-box { background: #E1F5EE; border-radius: 12px; padding: 1.25rem; width: 100%; text-align: center; margin-bottom: 1rem; }
+  .ok-icon { font-size: 28px; margin-bottom: 0.4rem; }
+  .ok-text { font-size: 14px; color: #085041; line-height: 1.5; }
+  .dots { display: flex; gap: 6px; margin-bottom: 1.25rem; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; transition: background 0.2s; }
+  .dot.done { background: #111; }
+  .dot.cur { background: #378ADD; }
+  .inp-wrap { width: 100%; margin-bottom: 0.75rem; }
+  .inp-wrap input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e0e0e0; font-size: 16px; outline: none; }
+  .inp-wrap input:focus { border-color: #aaa; }
+  .send-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #111; color: #fff; font-size: 16px; cursor: pointer; margin-bottom: 1rem; }
+  .send-btn:hover { opacity: 0.85; }
+  .sent-list { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+  .s-chip { padding: 6px 14px; border-radius: 99px; font-size: 13px; border: 1px solid #e8e8e8; }
+  .wait-icon { font-size: 48px; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+
+<div id="s-wait" class="screen active">
+  <div class="badge">準備中</div>
+  <h1>歡迎參與</h1>
+  <p class="sub">等老師開始<br>你的畫面會自動更新</p>
+  <div class="wait-icon">⏳</div>
+</div>
+
+<div id="s-vote" class="screen">
+  <div class="badge">關卡一 ・ 選邊站</div>
+  <div class="dots" id="dots"></div>
+  <div class="qcard">
+    <div class="qnum" id="qNum"></div>
+    <div class="qtext" id="qText"></div>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="ok-box" id="okBox" style="display:none;">
+    <div class="ok-icon">✓</div>
+    <div class="ok-text">已送出！<br>等老師切換下一題</div>
+  </div>
+</div>
+
+<div id="s-flip" class="screen">
+  <div class="badge">關卡二 ・ 翻牌挑戰</div>
+  <h1 style="font-size:19px;">看投影幕</h1>
+  <p class="sub">老師會翻牌<br>大家一起搶答！</p>
+  <div class="wait-icon">🃏</div>
+</div>
+
+<div id="s-wall" class="screen">
+  <div class="badge">關卡三 ・ 自我揭露</div>
+  <h1 style="font-size:19px;">說一個別人不知道的你</h1>
+  <p class="sub">你有什麼能力，是大家可能不知道的？</p>
+  <div class="inp-wrap">
+    <input type="text" id="wallInp" placeholder="我其實很會……" maxlength="25" />
+  </div>
+  <button class="send-btn" onclick="sendWall()">送出 →</button>
+  <div class="sent-list" id="sentList"></div>
+</div>
+
+<div id="s-done" class="screen">
+  <div class="badge">完成</div>
+  <h1 style="font-size:19px;">謝謝你的分享</h1>
+  <p class="sub">你說的話，大家都看見了。<br><br>包容不是忍耐，<br>是真的願意看見對方的樣子。</p>
+  <div class="wait-icon">✨</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyDhdmhm2CtDb84lVQoqyKTjnoIRq5MJrUY",
+  authDomain: "respect-421b6.firebaseapp.com",
+  databaseURL: "https://respect-421b6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "respect-421b6",
+  storageBucket: "respect-421b6.firebasestorage.app",
+  messagingSenderId: "326791688948",
+  appId: "1:326791688948:web:080e18897e55a33d7ba4a1"
+});
+const db = firebase.database();
+
+// ====== 填入 Apps Script 部署網址 ======
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyYs-bLQmZD9QDzUX6C1P74yCxMFUVNRChmDJk9S3dPO8U-4g17H-cL76fpe0ncBZjL/exec";
+
+const Qs = [
+  { q:"你比較像哪一種？", a:"🌙 熬夜型\n睡很晚才有靈感", b:"☀️ 早起型\n清晨是最清醒的時刻" },
+  { q:"遇到難題，你的第一反應？", a:"🗣 找人說\n講出來才能釐清", b:"🧠 自己想\n先消化完再說" },
+  { q:"在陌生場合你會怎麼做？", a:"😄 主動出擊\n先去跟人說話", b:"👀 先觀察\n看清楚再行動" }
+];
+
+let uid = localStorage.getItem('uid');
+if (!uid) { uid = 'u_' + Math.random().toString(36).substr(2,9); localStorage.setItem('uid', uid); }
+
+let curPhase = 'wait', curQ = 0, myVotes = {};
+
+db.ref('phase').on('value', snap => {
+  curPhase = snap.val() || 'wait';
+  showScreen(curPhase);
+});
+
+db.ref('currentQ').on('value', snap => {
+  const i = snap.val() || 0;
+  if (i !== curQ) { curQ = i; myVotes[i] = null; }
+  if (curPhase === 'vote') renderVote(i);
+});
+
+function showScreen(phase) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const m = { wait:'s-wait', vote:'s-vote', flip:'s-flip', wall:'s-wall', done:'s-done' };
+  document.getElementById(m[phase] || 's-wait').classList.add('active');
+  if (phase === 'vote') renderVote(curQ);
+}
+
+function renderVote(i) {
+  const q = Qs[i];
+  document.getElementById('qNum').textContent = '第 ' + (i+1) + ' 題，共 ' + Qs.length + ' 題';
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('okBox').style.display = myVotes[i] ? 'block' : 'none';
+
+  const dots = document.getElementById('dots');
+  dots.innerHTML = '';
+  Qs.forEach((_, j) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (j < i ? ' done' : j === i ? ' cur' : '');
+    dots.appendChild(d);
+  });
+
+  const box = document.getElementById('choices');
+  box.innerHTML = '';
+  ['A','B'].forEach(side => {
+    const el = document.createElement('div');
+    el.className = 'choice' + (myVotes[i] === side ? ' s'+side : myVotes[i] ? ' dim' : '');
+    el.textContent = side === 'A' ? q.a : q.b;
+    if (!myVotes[i]) el.onclick = () => castVote(i, side);
+    box.appendChild(el);
+  });
+}
+
+function castVote(i, side) {
+  if (myVotes[i]) return;
+  myVotes[i] = side;
+  db.ref('votes/q' + i + '/' + uid).set(side);
+  fetch(GAS_URL, {
+    method:'POST',
+    body: JSON.stringify({ type:'vote', qIndex:i, question:Qs[i].q, choice:side, choiceText: side==='A'?Qs[i].a:Qs[i].b })
+  }).catch(()=>{});
+  renderVote(i);
+  document.getElementById('okBox').style.display = 'block';
+}
+
+const wColors = ['#E6F1FB','#E1F5EE','#FAEEDA','#FBEAF0','#EEEDFE'];
+let sentCount = 0;
+function sendWall() {
+  const inp = document.getElementById('wallInp');
+  const val = inp.value.trim();
+  if (!val) return;
+  inp.value = '';
+  const key = db.ref('wall').push().key;
+  db.ref('wall/' + key).set({ text: val, uid, ts: Date.now() });
+  fetch(GAS_URL, { method:'POST', body: JSON.stringify({ type:'wall', text:val }) }).catch(()=>{});
+  const chip = document.createElement('div');
+  chip.className = 's-chip';
+  chip.style.background = wColors[sentCount++ % wColors.length];
+  chip.textContent = val;
+  document.getElementById('sentList').appendChild(chip);
+}
+</script>
+</body>
+</html>

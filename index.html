@@ -14,28 +14,39 @@
   .screen.active { display: flex; }
   .qcard { background: #f7f7f7; border-radius: 14px; padding: 1.5rem; width: 100%; text-align: center; margin-bottom: 1.25rem; }
   .qnum { font-size: 12px; color: #bbb; margin-bottom: 0.5rem; }
-  .qtext { font-size: 18px; font-weight: 500; line-height: 1.5; }
+  .qtext { font-size: 17px; font-weight: 500; line-height: 1.6; }
   .choices { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 1.25rem; }
-  .choice { padding: 1.25rem 1rem; border-radius: 12px; border: 1px solid #e8e8e8; background: #fff; cursor: pointer; font-size: 15px; font-weight: 500; text-align: center; line-height: 1.5; white-space: pre-line; transition: all 0.15s; }
+  .choice { padding: 1.1rem 1rem; border-radius: 12px; border: 1px solid #e8e8e8; background: #fff; cursor: pointer; font-size: 14px; text-align: left; line-height: 1.5; transition: all 0.15s; }
   .choice:hover { background: #f5f5f5; }
-  .choice.sA { background: #E6F1FB; border-color: #378ADD; color: #042C53; }
-  .choice.sB { background: #FAEEDA; border-color: #BA7517; color: #412402; }
+  .choice.selA { background: #E6F1FB; border-color: #378ADD; color: #042C53; }
+  .choice.selB { background: #FAEEDA; border-color: #BA7517; color: #412402; }
+  .choice.selC { background: #FBEAF0; border-color: #C45A8A; color: #4A0020; }
+  .choice.selD { background: #EEEDFE; border-color: #7F77DD; color: #1A1560; }
   .choice.dim { opacity: 0.35; cursor: default; pointer-events: none; }
-  .ok-box { background: #E1F5EE; border-radius: 12px; padding: 1.25rem; width: 100%; text-align: center; margin-bottom: 1rem; }
-  .ok-icon { font-size: 28px; margin-bottom: 0.4rem; }
+  .ok-box { background: #E1F5EE; border-radius: 12px; padding: 1rem; width: 100%; text-align: center; margin-bottom: 1rem; }
   .ok-text { font-size: 14px; color: #085041; line-height: 1.5; }
-  .dots { display: flex; gap: 6px; margin-bottom: 1.25rem; }
+  .dots { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; justify-content: center; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0e0e0; transition: background 0.2s; }
   .dot.done { background: #111; }
   .dot.cur { background: #378ADD; }
+  .dot.cur2 { background: #C45A8A; }
+  .dot.cur3 { background: #1D9E75; }
+  .reveal-box { width: 100%; border-radius: 14px; padding: 1.25rem; text-align: center; margin-bottom: 1rem; background: #FFF8E6; border: 1px solid #EF9F27; }
+  .reveal-label { font-size: 11px; color: #854F0B; margin-bottom: 0.5rem; letter-spacing: 0.04em; }
+  .reveal-text { font-size: 15px; color: #412402; line-height: 1.7; }
+  .result-box { width: 100%; border-radius: 14px; padding: 1.75rem; text-align: center; margin-bottom: 1.25rem; }
+  .result-emoji { font-size: 48px; margin-bottom: 0.75rem; }
+  .result-type { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+  .result-desc { font-size: 14px; line-height: 1.7; color: #444; }
+  .score-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .score-chip { padding: 4px 12px; border-radius: 99px; font-size: 13px; border: 1px solid #e0e0e0; }
+  .progress-bar { width: 100%; height: 4px; background: #f0f0f0; border-radius: 99px; margin-bottom: 1.5rem; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width 0.3s; }
+  .wait-icon { font-size: 48px; margin: 1.5rem 0; }
   .inp-wrap { width: 100%; margin-bottom: 0.75rem; }
   .inp-wrap input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e0e0e0; font-size: 16px; outline: none; }
   .inp-wrap input:focus { border-color: #aaa; }
   .send-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: #111; color: #fff; font-size: 16px; cursor: pointer; margin-bottom: 1rem; }
-  .send-btn:hover { opacity: 0.85; }
-  .sent-list { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
-  .s-chip { padding: 6px 14px; border-radius: 99px; font-size: 13px; border: 1px solid #e8e8e8; }
-  .wait-icon { font-size: 48px; margin: 1.5rem 0; }
 </style>
 </head>
 <body>
@@ -49,40 +60,74 @@
 
 <div id="s-vote" class="screen">
   <div class="badge">關卡一 ・ 選邊站</div>
-  <div class="dots" id="dots"></div>
+  <div class="dots" id="vDots"></div>
   <div class="qcard">
-    <div class="qnum" id="qNum"></div>
-    <div class="qtext" id="qText"></div>
+    <div class="qnum" id="vNum"></div>
+    <div class="qtext" id="vText"></div>
   </div>
-  <div class="choices" id="choices"></div>
-  <div class="ok-box" id="okBox" style="display:none;">
-    <div class="ok-icon">✓</div>
-    <div class="ok-text">已送出！<br>等老師切換下一題</div>
+  <div class="choices" id="vChoices"></div>
+  <div class="ok-box" id="vOk" style="display:none;">
+    <div class="ok-text">✓ 已送出！等老師切換下一題</div>
   </div>
 </div>
 
-<div id="s-flip" class="screen">
-  <div class="badge">關卡二 ・ 翻牌挑戰</div>
-  <h1 style="font-size:19px;">看投影幕</h1>
-  <p class="sub">老師會翻牌<br>大家一起搶答！</p>
-  <div class="wait-icon">🃏</div>
+<div id="s-scene" class="screen">
+  <div class="badge">關卡二 ・ 你怎麼看</div>
+  <div class="dots" id="sDots"></div>
+  <div class="qcard">
+    <div class="qnum" id="sNum"></div>
+    <div class="qtext" id="sText"></div>
+  </div>
+  <div class="choices" id="sChoices"></div>
+  <div class="ok-box" id="sOk" style="display:none;">
+    <div class="ok-text">✓ 已送出！等老師揭曉隱情</div>
+  </div>
+  <div class="reveal-box" id="sReveal" style="display:none;">
+    <div class="reveal-label">🔍 隱情揭曉</div>
+    <div class="reveal-text" id="sRevealText"></div>
+  </div>
 </div>
 
-<div id="s-wall" class="screen">
-  <div class="badge">關卡三 ・ 自我揭露</div>
-  <h1 style="font-size:19px;">說一個別人不知道的你</h1>
-  <p class="sub">你有什麼能力，是大家可能不知道的？</p>
-  <div class="inp-wrap">
-    <input type="text" id="wallInp" placeholder="我其實很會……" maxlength="25" />
+<div id="s-scene3" class="screen">
+  <div class="badge">關卡二 ・ 你怎麼看</div>
+  <div class="dots" id="s3Dots"></div>
+  <div class="qcard" style="background:#f0f7ff;">
+    <div class="qnum">情境三</div>
+    <div class="qtext">你生活中有沒有哪種人，你還沒認識就已經有印象了？</div>
   </div>
-  <button class="send-btn" onclick="sendWall()">送出 →</button>
-  <div class="sent-list" id="sentList"></div>
+  <p class="sub">這題沒有選項<br>老師會帶大家討論</p>
+  <div class="wait-icon">💭</div>
+</div>
+
+<div id="s-love" class="screen">
+  <div class="badge">關卡三 ・ 愛的語言測驗</div>
+  <div class="progress-bar"><div class="progress-fill" id="loveProg" style="width:0%;background:#1D9E75;"></div></div>
+  <div class="dots" id="lDots"></div>
+  <div class="qcard">
+    <div class="qnum" id="lNum"></div>
+    <div class="qtext" id="lText"></div>
+  </div>
+  <div class="choices" id="lChoices"></div>
+  <div class="ok-box" id="lOk" style="display:none;">
+    <div class="ok-text" id="lOkText">✓ 繼續下一題</div>
+  </div>
+</div>
+
+<div id="s-result" class="screen">
+  <div class="badge">你的愛的語言</div>
+  <div class="result-box" id="resultBox">
+    <div class="result-emoji" id="resEmoji"></div>
+    <div class="result-type" id="resType"></div>
+    <div class="result-desc" id="resDesc"></div>
+  </div>
+  <div class="score-row" id="scoreRow"></div>
+  <p class="sub" style="margin-bottom:0;">看投影幕，老師會帶大家討論</p>
 </div>
 
 <div id="s-done" class="screen">
   <div class="badge">完成</div>
-  <h1 style="font-size:19px;">謝謝你的分享</h1>
-  <p class="sub">你說的話，大家都看見了。<br><br>包容不是忍耐，<br>是真的願意看見對方的樣子。</p>
+  <h1 style="font-size:19px;">謝謝你的參與</h1>
+  <p class="sub">包容不是忍耐，<br>是真的願意看見對方的樣子。</p>
   <div class="wait-icon">✨</div>
 </div>
 
@@ -100,90 +145,204 @@ firebase.initializeApp({
 });
 const db = firebase.database();
 
-// ====== 填入 Apps Script 部署網址 ======
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyYs-bLQmZD9QDzUX6C1P74yCxMFUVNRChmDJk9S3dPO8U-4g17H-cL76fpe0ncBZjL/exec";
-
 const Qs = [
   { q:"你比較像哪一種？", a:"🌙 熬夜型\n睡很晚才有靈感", b:"☀️ 早起型\n清晨是最清醒的時刻" },
   { q:"遇到難題，你的第一反應？", a:"🗣 找人說\n講出來才能釐清", b:"🧠 自己想\n先消化完再說" },
   { q:"在陌生場合你會怎麼做？", a:"😄 主動出擊\n先去跟人說話", b:"👀 先觀察\n看清楚再行動" }
 ];
 
+const Scenes = [
+  {
+    q:"新來的同學第一天就坐在角落不說話，你覺得他是？",
+    opts:[{t:"個性冷漠，不想理人",v:"A"},{t:"很驕傲，覺得自己不一樣",v:"B"},{t:"很害羞，不知道怎麼開口",v:"C"},{t:"有心事，狀態不好",v:"D"}],
+    reveal:"他是從外縣市轉來的，昨晚在棉被裡哭了一整夜，今天鼓起勇氣來上學，但不知道怎麼開始。"
+  },
+  {
+    q:"聽說班上某個人之前在舊學校很愛惹事，你會怎麼看他？",
+    opts:[{t:"保持距離，觀察看看",v:"A"},{t:"直接覺得他是壞人",v:"B"},{t:"不在乎，自己判斷",v:"C"},{t:"想多了解他發生了什麼",v:"D"}],
+    reveal:"那個「惹事」是因為他看到同學被霸凌，忍不住出手幫忙，反而被記過。他的舊同學都知道他是好人。"
+  }
+];
+
+const LoveQs = [
+  { q:"朋友幫了你一個大忙，你最想要的回應是？", opts:[{t:"聽他說一句「你真的很棒」",v:"A"},{t:"找時間好好坐下來聊聊",v:"B"}] },
+  { q:"你心情不好時，最希望對方怎麼做？", opts:[{t:"說些鼓勵的話",v:"A"},{t:"默默幫你做一件事",v:"D"}] },
+  { q:"什麼樣的互動讓你覺得被重視？", opts:[{t:"對方專心聽你說話，不滑手機",v:"B"},{t:"對方記得你喜歡什麼，送你小驚喜",v:"C"}] },
+  { q:"朋友過生日，你最想送什麼？", opts:[{t:"一份用心挑選的禮物",v:"C"},{t:"親自幫他做一件他一直想做的事",v:"D"}] },
+  { q:"下面哪個場景讓你感覺最溫暖？", opts:[{t:"朋友拍拍你的肩膀說「我挺你」",v:"E"},{t:"朋友說「你做的事情真的很有意義」",v:"A"}] },
+  { q:"和朋友相處，什麼對你最重要？", opts:[{t:"一起做事、陪在身旁",v:"B"},{t:"肢體上的親近感（擊拳、擁抱）",v:"E"}] },
+  { q:"當你付出很多，最希望對方怎麼回應？", opts:[{t:"幫你分擔一些事情",v:"D"},{t:"送你一個有紀念意義的東西",v:"C"}] },
+  { q:"什麼樣的舉動最能讓你感受到友情？", opts:[{t:"對方特地撥時間只陪你",v:"B"},{t:"對方在你需要時主動幫忙",v:"D"}] },
+  { q:"你最喜歡哪種被關心的方式？", opts:[{t:"被擁抱或拍拍",v:"E"},{t:"收到對方親手做的東西",v:"C"}] },
+  { q:"朋友說了一句讓你很感動的話，你會？", opts:[{t:"覺得這比任何禮物都珍貴",v:"A"},{t:"覺得不如他實際幫你做件事",v:"D"}] }
+];
+
+const LoveTypes = {
+  A:{ name:"肯定的言詞", emoji:"💬", desc:"你重視言語的力量。一句真心的稱讚或鼓勵，比任何行動都更能讓你感受到被愛。", color:"#E6F1FB" },
+  B:{ name:"精心的時刻", emoji:"⏰", desc:"你重視專注的陪伴。對方把時間和注意力給你，就是最好的禮物。", color:"#E1F5EE" },
+  C:{ name:"接受禮物",   emoji:"🎁", desc:"你珍視有形的心意。禮物不在貴重，而是代表對方有在想著你。", color:"#FAEEDA" },
+  D:{ name:"服務的行動", emoji:"🤝", desc:"你被實際的幫助感動。對方願意為你做事，就是愛最直接的表達。", color:"#FBEAF0" },
+  E:{ name:"身體的接觸", emoji:"🫂", desc:"你透過肢體感受連結。一個擁抱或拍肩，能讓你瞬間感到安心與被愛。", color:"#EEEDFE" }
+};
+
 let uid = localStorage.getItem('uid');
 if (!uid) { uid = 'u_' + Math.random().toString(36).substr(2,9); localStorage.setItem('uid', uid); }
 
-let curPhase = 'wait', curQ = 0, myVotes = {};
+let curPhase = 'wait', curVQ = 0, myVotes = {};
+let curSQ = 0, myScene = {};
+let curLQ = 0, lScores = {A:0,B:0,C:0,D:0,E:0}, lAnswered = [];
 
 db.ref('phase').on('value', snap => {
-  curPhase = snap.val() || 'wait';
-  showScreen(curPhase);
+  const p = snap.val() || 'wait';
+  if (p !== curPhase) { curPhase = p; showScreen(p); }
 });
-
 db.ref('currentQ').on('value', snap => {
   const i = snap.val() || 0;
-  if (i !== curQ) { curQ = i; myVotes[i] = null; }
+  if (i !== curVQ) { curVQ = i; }
   if (curPhase === 'vote') renderVote(i);
+});
+db.ref('currentScene').on('value', snap => {
+  const i = snap.val() || 0;
+  curSQ = i;
+  if (curPhase === 'scene') renderScene(i);
+  if (curPhase === 'scene3') showS3();
+});
+db.ref('sceneRevealed').on('value', snap => {
+  if (snap.val() && curPhase === 'scene') {
+    document.getElementById('sReveal').style.display = 'block';
+    document.getElementById('sRevealText').textContent = Scenes[curSQ] ? Scenes[curSQ].reveal : '';
+  } else {
+    document.getElementById('sReveal').style.display = 'none';
+  }
 });
 
 function showScreen(phase) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const m = { wait:'s-wait', vote:'s-vote', flip:'s-flip', wall:'s-wall', done:'s-done' };
+  const m = { wait:'s-wait', vote:'s-vote', scene:'s-scene', scene3:'s-scene3', love:'s-love', done:'s-done' };
   document.getElementById(m[phase] || 's-wait').classList.add('active');
-  if (phase === 'vote') renderVote(curQ);
+  if (phase === 'vote') renderVote(curVQ);
+  if (phase === 'scene') renderScene(curSQ);
+  if (phase === 'love') { curLQ = 0; lScores={A:0,B:0,C:0,D:0,E:0}; lAnswered=[]; renderLove(0); }
 }
 
+// 關卡一
 function renderVote(i) {
   const q = Qs[i];
-  document.getElementById('qNum').textContent = '第 ' + (i+1) + ' 題，共 ' + Qs.length + ' 題';
-  document.getElementById('qText').textContent = q.q;
-  document.getElementById('okBox').style.display = myVotes[i] ? 'block' : 'none';
-
-  const dots = document.getElementById('dots');
+  document.getElementById('vNum').textContent = '第 ' + (i+1) + ' 題，共 ' + Qs.length + ' 題';
+  document.getElementById('vText').textContent = q.q;
+  document.getElementById('vOk').style.display = myVotes[i] ? 'block' : 'none';
+  const dots = document.getElementById('vDots');
   dots.innerHTML = '';
-  Qs.forEach((_, j) => {
-    const d = document.createElement('div');
-    d.className = 'dot' + (j < i ? ' done' : j === i ? ' cur' : '');
-    dots.appendChild(d);
-  });
-
-  const box = document.getElementById('choices');
+  Qs.forEach((_,j) => { const d=document.createElement('div'); d.className='dot'+(j<i?' done':j===i?' cur':''); dots.appendChild(d); });
+  const box = document.getElementById('vChoices');
   box.innerHTML = '';
   ['A','B'].forEach(side => {
     const el = document.createElement('div');
-    el.className = 'choice' + (myVotes[i] === side ? ' s'+side : myVotes[i] ? ' dim' : '');
-    el.textContent = side === 'A' ? q.a : q.b;
+    el.className = 'choice' + (myVotes[i]===side?' sel'+side : myVotes[i]?' dim':'');
+    el.textContent = side==='A' ? q.a : q.b;
     if (!myVotes[i]) el.onclick = () => castVote(i, side);
     box.appendChild(el);
   });
 }
-
 function castVote(i, side) {
   if (myVotes[i]) return;
   myVotes[i] = side;
-  db.ref('votes/q' + i + '/' + uid).set(side);
-  fetch(GAS_URL, {
-    method:'POST',
-    body: JSON.stringify({ type:'vote', qIndex:i, question:Qs[i].q, choice:side, choiceText: side==='A'?Qs[i].a:Qs[i].b })
-  }).catch(()=>{});
+  db.ref('votes/q'+i+'/'+uid).set(side);
   renderVote(i);
-  document.getElementById('okBox').style.display = 'block';
+  document.getElementById('vOk').style.display = 'block';
 }
 
-const wColors = ['#E6F1FB','#E1F5EE','#FAEEDA','#FBEAF0','#EEEDFE'];
-let sentCount = 0;
-function sendWall() {
-  const inp = document.getElementById('wallInp');
-  const val = inp.value.trim();
-  if (!val) return;
-  inp.value = '';
-  const key = db.ref('wall').push().key;
-  db.ref('wall/' + key).set({ text: val, uid, ts: Date.now() });
-  fetch(GAS_URL, { method:'POST', body: JSON.stringify({ type:'wall', text:val }) }).catch(()=>{});
-  const chip = document.createElement('div');
-  chip.className = 's-chip';
-  chip.style.background = wColors[sentCount++ % wColors.length];
-  chip.textContent = val;
-  document.getElementById('sentList').appendChild(chip);
+// 關卡二
+const selColors = ['A','B','C','D'];
+function renderScene(i) {
+  if (i >= Scenes.length) return;
+  const s = Scenes[i];
+  document.getElementById('sNum').textContent = '情境 ' + (i+1) + '，共 2 個';
+  document.getElementById('sText').textContent = s.q;
+  document.getElementById('sOk').style.display = myScene[i] ? 'block' : 'none';
+  document.getElementById('sReveal').style.display = 'none';
+  const dots = document.getElementById('sDots');
+  dots.innerHTML = '';
+  Scenes.forEach((_,j) => { const d=document.createElement('div'); d.className='dot'+(j<i?' done':j===i?' cur':''); dots.appendChild(d); });
+  const box = document.getElementById('sChoices');
+  box.innerHTML = '';
+  s.opts.forEach((opt,idx) => {
+    const el = document.createElement('div');
+    const sc = selColors[idx];
+    el.className = 'choice' + (myScene[i]===opt.v?' sel'+sc : myScene[i]?' dim':'');
+    el.textContent = opt.t;
+    if (!myScene[i]) el.onclick = () => castScene(i, opt.v);
+    box.appendChild(el);
+  });
+}
+function castScene(i, v) {
+  if (myScene[i]) return;
+  myScene[i] = v;
+  db.ref('sceneVotes/s'+i+'/'+uid).set(v);
+  renderScene(i);
+  document.getElementById('sOk').style.display = 'block';
+}
+function showS3() {
+  const dots = document.getElementById('s3Dots');
+  dots.innerHTML = '';
+  for(let j=0;j<3;j++) { const d=document.createElement('div'); d.className='dot'+(j<2?' done':' cur2'); dots.appendChild(d); }
+}
+
+// 關卡三
+function renderLove(i) {
+  const q = LoveQs[i];
+  document.getElementById('loveProg').style.width = Math.round(i/LoveQs.length*100) + '%';
+  document.getElementById('lNum').textContent = '第 ' + (i+1) + ' 題，共 ' + LoveQs.length + ' 題';
+  document.getElementById('lText').textContent = q.q;
+  document.getElementById('lOk').style.display = 'none';
+  const dots = document.getElementById('lDots');
+  dots.innerHTML = '';
+  LoveQs.forEach((_,j) => { const d=document.createElement('div'); d.className='dot'+(j<i?' done':j===i?' cur3':''); dots.appendChild(d); });
+  const box = document.getElementById('lChoices');
+  box.innerHTML = '';
+  q.opts.forEach(opt => {
+    const el = document.createElement('div');
+    el.className = 'choice' + (lAnswered[i]===opt.v?' selA':lAnswered[i]?' dim':'');
+    el.textContent = opt.t;
+    if (!lAnswered[i]) el.onclick = () => answerLove(i, opt.v);
+    box.appendChild(el);
+  });
+}
+function answerLove(i, v) {
+  if (lAnswered[i]) return;
+  lAnswered[i] = v;
+  lScores[v]++;
+  renderLove(i);
+  document.getElementById('lOk').style.display = 'block';
+  if (i < LoveQs.length-1) {
+    document.getElementById('lOkText').textContent = '✓ 繼續下一題';
+    setTimeout(() => { curLQ=i+1; renderLove(i+1); }, 800);
+  } else {
+    document.getElementById('lOkText').textContent = '✓ 完成！計算結果中…';
+    document.getElementById('loveProg').style.width = '100%';
+    setTimeout(showResult, 1000);
+  }
+}
+function showResult() {
+  const top = Object.entries(lScores).sort((a,b)=>b[1]-a[1])[0][0];
+  const t = LoveTypes[top];
+  document.getElementById('resEmoji').textContent = t.emoji;
+  document.getElementById('resType').textContent = t.name;
+  document.getElementById('resDesc').textContent = t.desc;
+  document.getElementById('resultBox').style.background = t.color;
+  const sr = document.getElementById('scoreRow');
+  sr.innerHTML = '';
+  Object.entries(lScores).forEach(([k,v]) => {
+    const c = document.createElement('div');
+    c.className = 'score-chip';
+    c.style.background = k===top ? LoveTypes[k].color : '#f7f7f7';
+    c.style.fontWeight = k===top ? '500' : '400';
+    c.textContent = LoveTypes[k].name.replace('的','') + ' ' + v;
+    sr.appendChild(c);
+  });
+  db.ref('loveResults/'+uid).set({ type:top, scores:lScores, ts:Date.now() });
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-result').classList.add('active');
 }
 </script>
 </body>

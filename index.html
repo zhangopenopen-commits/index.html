@@ -144,6 +144,7 @@ firebase.initializeApp({
   appId: "1:326791688948:web:080e18897e55a33d7ba4a1"
 });
 const db = firebase.database();
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyYs-bLQmZD9QDzUX6C1P74yCxMFUVNRChmDJk9S3dPO8U-4g17H-cL76fpe0ncBZjL/exec";
 
 const Qs = [
   { q:"你比較像哪一種？", a:"🌙 熬夜型\n睡很晚才有靈感", b:"☀️ 早起型\n清晨是最清醒的時刻" },
@@ -248,6 +249,7 @@ function castVote(i, side) {
   if (myVotes[i]) return;
   myVotes[i] = side;
   db.ref('votes/q'+i+'/'+uid).set(side);
+  fetch(GAS_URL, { method:'POST', body: JSON.stringify({ type:'vote', qIndex:i, question:Qs[i].q, choice:side, choiceText:side==='A'?Qs[i].a:Qs[i].b }) }).catch(()=>{});
   renderVote(i);
   document.getElementById('vOk').style.display = 'block';
 }
@@ -279,6 +281,8 @@ function castScene(i, v) {
   if (myScene[i]) return;
   myScene[i] = v;
   db.ref('sceneVotes/s'+i+'/'+uid).set(v);
+  const sceneOpt = Scenes[i] ? Scenes[i].opts.find(o=>o.v===v) : null;
+  fetch(GAS_URL, { method:'POST', body: JSON.stringify({ type:'scene', sceneIndex:i, question:Scenes[i]?Scenes[i].q:'', choice:v, choiceText:sceneOpt?sceneOpt.t:v }) }).catch(()=>{});
   renderScene(i);
   document.getElementById('sOk').style.display = 'block';
 }
@@ -341,6 +345,7 @@ function showResult() {
     sr.appendChild(c);
   });
   db.ref('loveResults/'+uid).set({ type:top, scores:lScores, ts:Date.now() });
+  fetch(GAS_URL, { method:'POST', body: JSON.stringify({ type:'love', loveType:top, scores:lScores }) }).catch(()=>{});
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('s-result').classList.add('active');
 }
